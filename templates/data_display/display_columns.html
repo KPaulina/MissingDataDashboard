@@ -1,0 +1,36 @@
+{%  extends "data_display/base.html" %}
+
+
+{% load static %}
+
+{% block title %}
+
+    See the columns in the dataframe
+{%  endblock %}
+
+{% block content %}
+
+    <h4>Columns in your dataframe</h4>
+    <ul>
+        {% for column in column_names %}
+            <li>{{ column }}</li>
+        {% endfor %}
+    </ul>
+
+
+    <form action='.' method="POST">
+        {% csrf_token %}
+        <input type='text' name='column1' placeholder="column1" />
+{#        <button type="submit">Column1 submit</button>#}
+        <input type='text' name='column2' placeholder="column2" />
+        <button type="submit">Submit columns names</button>
+    </form>
+    {% if dashboard_created %}
+        {{ chart2|safe }}
+
+        {{ chart|safe }}
+
+
+    {% endif %}
+
+{% endblock %}
