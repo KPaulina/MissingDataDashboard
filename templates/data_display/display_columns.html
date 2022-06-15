@@ -17,20 +17,30 @@
         {% endfor %}
     </ul>
 
-
+    <a>Choose columns for creating charts and making imputations</a>
     <form action='.' method="POST">
         {% csrf_token %}
         <input type='text' name='column1' placeholder="column1" />
-{#        <button type="submit">Column1 submit</button>#}
         <input type='text' name='column2' placeholder="column2" />
+        <input type="text" name="imputation" placeholder="imputation" />
         <button type="submit">Submit columns names</button>
     </form>
+    <br>
+    <br>
     {% if dashboard_created %}
         {{ chart2|safe }}
 
         {{ chart|safe }}
+    <h4>After imputation</h4>
+    <br>
+        {{ chart_imputation_2|safe }}
 
+        {{ chart_imputation_1|safe }}
 
+    {% endif %}
+
+    {% if dashboard_not_created %}
+        {{ error }}
     {% endif %}
 
 {% endblock %}
