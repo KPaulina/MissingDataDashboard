@@ -9,14 +9,15 @@
 {%  endblock %}
 
 {% block content %}
-
+    <div id="centerdiv">
     <h4>Columns in your dataframe</h4>
     <ul>
         {% for column in column_names %}
             <li>{{ column }}</li>
         {% endfor %}
     </ul>
-
+    </div>
+    <div id="inputdiv">
     <a>Choose columns for creating charts and making imputations</a>
     <form action='.' method="POST">
         {% csrf_token %}
@@ -25,8 +26,26 @@
         <input type="text" name="imputation" placeholder="imputation" />
         <button type="submit">Submit columns names</button>
     </form>
+    </div>
+    <div id="tablediv">
+    <table>
+        <tr>
+            <th> {{ column1 }}</th>
+            <th>{{ column2 }}</th>
+        </tr>
+        <tr>
+            <td> Standard deviation before imputation: {{ std1 }} </td>
+            <td> Standard deviation before imputation: {{ std2 }}</td>
+        </tr>
+        <tr>
+            <td> Standard deviation after imputation: {{ std_imputation_1 }} </td>
+            <td> Standard deviation after imputation: {{ std_imputation_2 }}</td>
+        </tr>
+    </table>
+    </div>
     <br>
     <br>
+    <div id="chardiv">
     {% if dashboard_created %}
         {{ chart2|safe }}
 
@@ -42,5 +61,5 @@
     {% if dashboard_not_created %}
         {{ error }}
     {% endif %}
-
+    </div>
 {% endblock %}
