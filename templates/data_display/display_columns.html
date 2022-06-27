@@ -23,7 +23,13 @@
         {% csrf_token %}
         <input type='text' name='column1' placeholder="column1" />
         <input type='text' name='column2' placeholder="column2" />
-        <input type="text" name="imputation" placeholder="imputation" />
+{#        <input type="text" name="imputation" placeholder="imputation" />#}
+        <select name="imputation">
+            <option value="mean">mean</option>
+            <option value="median">median</option>
+            <option value="most_frequent">most frequent</option>
+            <option value="constant">constant</option>
+        </select>
         <button type="submit">Submit columns names</button>
     </form>
     </div>
