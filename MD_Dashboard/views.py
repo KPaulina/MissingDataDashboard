@@ -18,6 +18,11 @@ def calculate_std(data, column_1, column_2):
     return std_1, std_2
 
 
+def changing_to_npnan(data_imputation, column):
+
+    return data_imputation[column]
+
+
 def imputation_strategy(imput_strategy, data, context, column_1, column_2):
     context['column1'] = column_1
     context['column2'] = column_2
@@ -72,17 +77,18 @@ def data_from_csv(request):
         context['std1'] = std_1
         context['std2'] = std_2
         impu_strategy = request.POST.get('imputation')
-        print(type(impu_strategy))
         data_imputation, context = imputation_strategy(impu_strategy, data, context, column_1, column_2)
-        std_im_1, std_im_2 = calculate_std(data, column_1, column_2)
-        data['std_imputation_1'] = std_im_1
-        data['std_imputation_2'] = std_im_2
+        std_im_1, std_im_2 = calculate_std(data_imputation, column_1, column_2)
+        print(f'Tutaj powinno być: {std_im_1}')
+        context['std_imputation1'] = std_im_1
+        context['std_imputation2'] = std_im_2
         chart_imputation_1, chart_imputation_2 = create_chart(data_imputation, column_1, column_2)
         context['chart_imputation_1'] = chart_imputation_1
         context['chart_imputation_2'] = chart_imputation_2
         chart, chart2 = create_chart(data, column_1, column_2)
         context['chart'] = chart
         context['chart2'] = chart2
+        context['text'] = 'Before imputation'
         context['dashboard_created'] = True
         context['dashboard_not_created'] = False
         context['error'] = 'This imputation strategy cannot be used here'

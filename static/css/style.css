@@ -1,25 +1,29 @@
-#centerdiv {
-    padding-top: 10px;
-    padding-left: 30px;
+#container {
+    display: flex;
+    flex-wrap: wrap;
 }
 
-#inputdiv {
-    top: 45%;
-    left: 40%;
-    margin-top: -17em; /*set to a negative number 1/2 of your height*/
-    margin-left: -15em; /*set to a negative number 1/2 of your width*/
-    position:relative;
+/*#container > div {*/
+/*    padding: 20px;*/
+/*    width: 600px;*/
+/*}*/
+
+#columns {
+    padding: 20px;
+    width: 300px;
 }
 
-#tablediv {
-    top: 65%;
-    left: 40%;
-    padding-top: 20px;
-    margin-top: -0.20em; /*set to a negative number 1/2 of your height*/
-    margin-left: -15em; /*set to a negative number 1/2 of your width*/
-    position:relative;
+#form {
+    padding: 20px;
+    width: 900px;
 }
 
-#chardiv {
-    padding-top: 20px;
+#table {
+    padding: 20px;
+    width: 700px;
+}
+
+#chart {
+    width: 1200px;
+    text-align: center;
 }
