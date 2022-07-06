@@ -18,12 +18,15 @@
         {% endfor %}
     </ul>
     </div>
+
+
     <div id="form">
     <a>Choose columns for creating charts and making imputations</a><br>
     <form action='.' method="POST">
         {% csrf_token %}
-        <input type='text' name='column1' placeholder="column1" />
-        <input type='text' name='column2' placeholder="column2" />
+        {{ form.as_p }}
+{#        <input type='text' name='column1' placeholder="column1" />#}
+{#        <input type='text' name='column2' placeholder="column2" />#}
 {#        <input type="text" name="imputation" placeholder="imputation" />#}
         <select name="imputation">
             <option value="mean">mean</option>

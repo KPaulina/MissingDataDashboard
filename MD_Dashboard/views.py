@@ -1,5 +1,5 @@
 import os.path
-
+from .forms import MissingDataForm
 import numpy as np
 import pandas as pd
 from django.shortcuts import render
@@ -24,9 +24,6 @@ def changing_to_npnan(data_imputation, column):
 
 
 def imputation_strategy(imput_strategy, data, context, column_1, column_2):
-    context['column1'] = column_1
-    context['column2'] = column_2
-    context['imputation_strategy'] = imput_strategy
     if imput_strategy == 'mean' or imput_strategy == 'median':
         data_imputation = data.copy(deep=True)
         data_imputation = data_imputation[[column_1, column_2]]
@@ -51,6 +48,7 @@ def imputation_strategy(imput_strategy, data, context, column_1, column_2):
 
 
 def data_from_csv(request):
+
     def create_chart(data, column_1, column_2):
         column_in_the_graph_1 = data[column_1]
         column_in_the_graph_2 = data[column_2]
@@ -58,7 +56,7 @@ def data_from_csv(request):
                            x=column_in_the_graph_1,
                            y=column_in_the_graph_2,
                            )
-        box_plot_fig = go.Figure ()
+        box_plot_fig = go.Figure()
         box_plot_fig.add_trace(go.Box(y=column_in_the_graph_1, name=column_1))
         box_plot_fig.add_trace(go.Box(y=column_in_the_graph_2, name=column_2))
 
@@ -68,30 +66,39 @@ def data_from_csv(request):
     name = 'diabetes'
     data = pd.read_csv(f'{DATA_DIR}{name}.csv', sep=',')
     column_names = data.columns.values.tolist()
-
-    context = {'column_names': column_names}
+    form = MissingDataForm()
+    context = {'column_names': column_names, 'form': form}
     if request.method == "POST":
-        column_1 = request.POST.get('column1')
-        column_2 = request.POST.get('column2')
-        std_1, std_2 = calculate_std(data, column_1, column_2)
-        context['std1'] = std_1
-        context['std2'] = std_2
+        form = MissingDataForm(request.POST)
         impu_strategy = request.POST.get('imputation')
-        data_imputation, context = imputation_strategy(impu_strategy, data, context, column_1, column_2)
-        std_im_1, std_im_2 = calculate_std(data_imputation, column_1, column_2)
-        print(f'Tutaj powinno być: {std_im_1}')
-        context['std_imputation1'] = std_im_1
-        context['std_imputation2'] = std_im_2
-        chart_imputation_1, chart_imputation_2 = create_chart(data_imputation, column_1, column_2)
-        context['chart_imputation_1'] = chart_imputation_1
-        context['chart_imputation_2'] = chart_imputation_2
-        chart, chart2 = create_chart(data, column_1, column_2)
-        context['chart'] = chart
-        context['chart2'] = chart2
         context['text'] = 'Before imputation'
         context['dashboard_created'] = True
         context['dashboard_not_created'] = False
         context['error'] = 'This imputation strategy cannot be used here'
+        if form.is_valid():
+            column_1 = form.cleaned_data.get('column_1')
+            column_2 = form.cleaned_data.get('column_2')
+            context['column1'] = column_1
+            context['column2'] = column_2
+            # columns_object = MissingDataForm.objects.create(column_1=column_1, column_2=column_2)
+            print(f'Tutaj powinno być: {column_1}')
+            std_1, std_2 = calculate_std(data, column_1, column_2)
+            context['std1'] = std_1
+            context['std2'] = std_2
+            data_imputation, context = imputation_strategy(impu_strategy, data, context, column_1, column_2)
+            std_im_1, std_im_2 = calculate_std(data_imputation, column_1, column_2)
+
+            context['std_imputation1'] = std_im_1
+            context['std_imputation2'] = std_im_2
+            chart_imputation_1, chart_imputation_2 = create_chart(data_imputation, column_1, column_2)
+            context['chart_imputation_1'] = chart_imputation_1
+            context['chart_imputation_2'] = chart_imputation_2
+            chart, chart2 = create_chart(data, column_1, column_2)
+            context['chart'] = chart
+            context['chart2'] = chart2
+            return render (request, 'data_display/display_columns.html', context)
+        return render (request, 'data_display/display_columns.html', context)
+
     return render(request, 'data_display/display_columns.html', context)
 
 
