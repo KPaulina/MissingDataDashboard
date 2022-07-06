@@ -7,23 +7,48 @@ import plotly.graph_objects as go
 import plotly.express as px
 from sklearn.impute import SimpleImputer
 
+'''
+path to were data is stored
+'''
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'data\\')
 # Create your views here.
 
 
 def calculate_std(data, column_1, column_2):
+    '''
+    Function that calculates standard deviation for chosen columns
+    :param data:
+    :param column_1:
+    :param column_2:
+    :return:
+    '''
     std_1 = data[column_1].std()
     std_2 = data[column_2].std()
     return std_1, std_2
 
 
 def changing_to_npnan(data_imputation, column):
-
+    '''
+    Function that takes care of changing missing value to np.nan
+    :param data_imputation:
+    :param column:
+    :return: data_imputation[column]
+    '''
+    data_imputation[column] = np.where((data_imputation[column] == 0) | (data_imputation[column] is None), np.nan, data_imputation[column])
     return data_imputation[column]
 
 
 def imputation_strategy(imput_strategy, data, context, column_1, column_2):
+    '''
+    Function that takes care of impute strategy on data
+    :param imput_strategy:
+    :param data:
+    :param context:
+    :param column_1:
+    :param column_2:
+    :return: data_imputation, context
+    '''
     if imput_strategy == 'mean' or imput_strategy == 'median':
         data_imputation = data.copy(deep=True)
         data_imputation = data_imputation[[column_1, column_2]]
@@ -37,8 +62,8 @@ def imputation_strategy(imput_strategy, data, context, column_1, column_2):
 
         return data_imputation, context
     data_imputation = data.copy(deep=True)
-    data_imputation[column_1] = np.where((data_imputation[column_1] == 0) | (data_imputation[column_1] is None), np.nan, data_imputation[column_1])
-    data_imputation[column_2] = np.where((data_imputation[column_2] == 0) | (data_imputation[column_2] is None), np.nan, data_imputation[column_2])
+    data_imputation[column_1] = changing_to_npnan(data_imputation, column_1)
+    data_imputation[column_1] = changing_to_npnan(data_imputation, column_2)
     mean_imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
     data_imputation = pd.DataFrame(mean_imputer.fit_transform (data_imputation))
     data_imputation.columns = data.columns
@@ -48,7 +73,11 @@ def imputation_strategy(imput_strategy, data, context, column_1, column_2):
 
 
 def data_from_csv(request):
-
+    '''
+    Function that takes data from csv, displays columns and shows charts for this data before and after imputation
+    :param request:
+    :return:
+    '''
     def create_chart(data, column_1, column_2):
         column_in_the_graph_1 = data[column_1]
         column_in_the_graph_2 = data[column_2]
