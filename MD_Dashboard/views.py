@@ -79,6 +79,13 @@ def data_from_csv(request):
     :return:
     '''
     def create_chart(data, column_1, column_2):
+        '''
+        Function that creates charts for the data
+        :param data:
+        :param column_1:
+        :param column_2:
+        :return:
+        '''
         column_in_the_graph_1 = data[column_1]
         column_in_the_graph_2 = data[column_2]
         fig2 = px.scatter(data,
@@ -125,9 +132,6 @@ def data_from_csv(request):
             chart, chart2 = create_chart(data, column_1, column_2)
             context['chart'] = chart
             context['chart2'] = chart2
-            return render (request, 'data_display/display_columns.html', context)
-        return render (request, 'data_display/display_columns.html', context)
-
     return render(request, 'data_display/display_columns.html', context)
 
 
