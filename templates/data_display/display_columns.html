@@ -28,13 +28,14 @@
 {#        <input type='text' name='column1' placeholder="column1" />#}
 {#        <input type='text' name='column2' placeholder="column2" />#}
 {#        <input type="text" name="imputation" placeholder="imputation" />#}
-        <select name="imputation">
-            <option value="mean">mean</option>
-            <option value="median">median</option>
-            <option value="most_frequent">most frequent</option>
-            <option value="constant">constant</option>
+        <select name="imputation" class="form-select" aria-label="Default select example">
+            <option value="mean" class="dropdown-item">mean</option>
+            <option value="median" class="dropdown-item">median</option>
+            <option value="most_frequent" class="dropdown-item">most frequent</option>
+            <option value="constant" class="dropdown-item">constant</option>
         </select>
-        <button type="submit">Submit columns names</button>
+        <br>
+        <button type="submit" class="btn btn-success">Submit columns names</button>
     </form>
     </div>
     <div id="table">
