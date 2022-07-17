@@ -30,12 +30,14 @@
             <option value="median" class="dropdown-item">median</option>
             <option value="most_frequent" class="dropdown-item">most frequent</option>
             <option value="constant" class="dropdown-item">constant</option>
+            <option value="MissForest" class="dropdown-item">miss forest</option>
         </select>
         <br>
-        <button type="submit" class="btn btn-success">Submit columns names</button>
+        <button type="submit" class="btn btn-success">Submit</button>
     </form>
     </div>
     <div id="table">
+    <h4>Data before and after imputation for strategy {{ impu_strategy }}</h4>
     <table>
         <tr>
             <th> {{ column1 }}</th>

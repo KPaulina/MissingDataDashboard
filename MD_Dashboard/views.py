@@ -1,4 +1,7 @@
 import os.path
+
+import sklearn
+
 from .forms import MissingDataForm
 import numpy as np
 import pandas as pd
@@ -6,6 +9,11 @@ from django.shortcuts import render
 import plotly.graph_objects as go
 import plotly.express as px
 from sklearn.impute import SimpleImputer
+import sklearn.neighbors._base
+import sys
+sys.modules['sklearn.neighbors.base'] = sklearn.neighbors._base
+from missingpy import MissForest
+
 
 '''
 path to were data is stored
@@ -30,7 +38,7 @@ def calculate_std(data, column_1, column_2):
 
 def calculate_quantiles(data: pd.DataFrame, column_1: str, column_2: str):
     '''
-    Function created to calculate quantiles in data and data after imputation.
+    Function created to calculate quantiles in data before and after imputation.
     :param data:
     :param data_imputation:
     :return:
@@ -43,6 +51,13 @@ def calculate_quantiles(data: pd.DataFrame, column_1: str, column_2: str):
 
 
 def calculate_min_max(data, column_1, column_2):
+    '''
+    Function which calculates min and max for provided columns.
+    :param data:
+    :param column_1:
+    :param column_2:
+    :return:
+    '''
     min_1 = data[column_1].min()
     max_1 = data[column_1].max()
     min_2 = data[column_2].min()
@@ -61,7 +76,7 @@ def changing_to_npnan(data_imputation: pd.DataFrame, column: str):
     return data_imputation[column]
 
 
-def imputation_strategy(imput_strategy, data, context, column_1, column_2):
+def imputation_strategy(imput_strategy, data, column_1, column_2):
     '''
     Function that takes care of impute strategy on data
     :param imput_strategy:
@@ -71,27 +86,28 @@ def imputation_strategy(imput_strategy, data, context, column_1, column_2):
     :param column_2:
     :return: data_imputation, context
     '''
-    if imput_strategy == 'mean' or imput_strategy == 'median':
-        data_imputation = data.copy(deep=True)
+    data_imputation = data.copy(deep=True)
+    data_imputation[column_1] = changing_to_npnan(data_imputation, column_1)
+    data_imputation[column_2] = changing_to_npnan(data_imputation, column_2)
+    if imput_strategy == 'MissForest':
+        imputer = MissForest()
+        miss_data = imputer.fit_transform(data_imputation)
+        miss_forest_data = pd.DataFrame(miss_data, columns=data.columns).round(1)
+        return miss_forest_data
+    elif imput_strategy == 'mean' or imput_strategy == 'median':
         data_imputation = data_imputation[[column_1, column_2]]
-        data_imputation[column_1] = np.where((data_imputation[column_1] == 0) | (data_imputation[column_1] is None), np.nan, data_imputation[column_1])
-        data_imputation[column_2] = np.where((data_imputation[column_2] == 0) | (data_imputation[column_2] is None), np.nan, data_imputation[column_2])
         col = data_imputation.columns
         imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
         data_imputation = pd.DataFrame(imputer.fit_transform(data_imputation))
         data_imputation.columns = col
         data_imputation.index = data.index
+        return data_imputation
 
-        return data_imputation, context
-    data_imputation = data.copy(deep=True)
-    data_imputation[column_1] = changing_to_npnan(data_imputation, column_1)
-    data_imputation[column_1] = changing_to_npnan(data_imputation, column_2)
     mean_imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
     data_imputation = pd.DataFrame(mean_imputer.fit_transform (data_imputation))
     data_imputation.columns = data.columns
     data_imputation.index = data.index
-
-    return data_imputation, context
+    return data_imputation
 
 
 def data_from_csv(request):
@@ -129,10 +145,7 @@ def data_from_csv(request):
     if request.method == "POST":
         form = MissingDataForm(request.POST)
         impu_strategy = request.POST.get('imputation')
-        context['text'] = 'Before imputation'
-        context['dashboard_created'] = True
-        context['dashboard_not_created'] = False
-        context['error'] = 'This imputation strategy cannot be used here'
+        context.update({'impu_strategy': impu_strategy, 'text': 'Before imputation', 'dashboard_created': True, 'dashboard_not_created': False, 'error': 'This imputation strategy cannot be used here'})
         if form.is_valid():
             column_1 = form.cleaned_data.get('column_1')
             column_2 = form.cleaned_data.get('column_2')
@@ -140,12 +153,12 @@ def data_from_csv(request):
             context['column2'] = column_2
             # columns_object = MissingDataForm.objects.create(column_1=column_1, column_2=column_2)
             std_1, std_2 = calculate_std(data, column_1, column_2)
-            context.update({'std1': std_1, 'std_2': std_2})
+            context.update({'std1': std_1, 'std2': std_2})
             quantiles_1, quantiles_2, third_qauntile_1, third_qauntile_2 = calculate_quantiles(data, column_1, column_2)
             context.update({'first_quantile_1': quantiles_1, 'first_quantile_2': quantiles_2, 'third_quantiles_1': third_qauntile_1, 'third_quantiles_2': third_qauntile_2})
             min_1, max_1, min_2, max_2 = calculate_min_max(data, column_1, column_2)
             context.update({'min_1': min_1, 'max_1': max_1, 'min_2': min_2, 'max_2': max_2})
-            data_imputation, context = imputation_strategy(impu_strategy, data, context, column_1, column_2)
+            data_imputation = imputation_strategy(impu_strategy, data, column_1, column_2)
             std_im_1, std_im_2 = calculate_std(data_imputation, column_1, column_2)
             context.update({'std_imputation1': std_im_1, 'std_imputation2': std_im_2})
             chart_imputation_1, chart_imputation_2 = create_chart(data_imputation, column_1, column_2)
@@ -161,5 +174,3 @@ def data_from_csv(request):
     return render(request, 'data_display/display_columns.html', context)
 
 
-def create_dashboard(request):
-    pass
