@@ -28,7 +28,29 @@ def calculate_std(data, column_1, column_2):
     return std_1, std_2
 
 
-def changing_to_npnan(data_imputation, column):
+def calculate_quantiles(data: pd.DataFrame, column_1: str, column_2: str):
+    '''
+    Function created to calculate quantiles in data and data after imputation.
+    :param data:
+    :param data_imputation:
+    :return:
+    '''
+    first_qauntile_1 = np.percentile(data[column_1], 25)
+    first_qauntile_2 = np.percentile(data[column_2], 25)
+    third_qauntile_1 = np.percentile(data[column_1], 75)
+    third_qauntile_2 = np.percentile(data[column_2], 75)
+    return first_qauntile_1, first_qauntile_2, third_qauntile_1, third_qauntile_2
+
+
+def calculate_min_max(data, column_1, column_2):
+    min_1 = data[column_1].min()
+    max_1 = data[column_1].max()
+    min_2 = data[column_2].min()
+    max_2 = data[column_2].max()
+    return min_1, max_1, min_2, max_2
+
+
+def changing_to_npnan(data_imputation: pd.DataFrame, column: str):
     '''
     Function that takes care of changing missing value to np.nan
     :param data_imputation:
@@ -117,18 +139,22 @@ def data_from_csv(request):
             context['column1'] = column_1
             context['column2'] = column_2
             # columns_object = MissingDataForm.objects.create(column_1=column_1, column_2=column_2)
-            print(f'Tutaj powinno być: {column_1}')
             std_1, std_2 = calculate_std(data, column_1, column_2)
-            context['std1'] = std_1
-            context['std2'] = std_2
+            context.update({'std1': std_1, 'std_2': std_2})
+            quantiles_1, quantiles_2, third_qauntile_1, third_qauntile_2 = calculate_quantiles(data, column_1, column_2)
+            context.update({'first_quantile_1': quantiles_1, 'first_quantile_2': quantiles_2, 'third_quantiles_1': third_qauntile_1, 'third_quantiles_2': third_qauntile_2})
+            min_1, max_1, min_2, max_2 = calculate_min_max(data, column_1, column_2)
+            context.update({'min_1': min_1, 'max_1': max_1, 'min_2': min_2, 'max_2': max_2})
             data_imputation, context = imputation_strategy(impu_strategy, data, context, column_1, column_2)
             std_im_1, std_im_2 = calculate_std(data_imputation, column_1, column_2)
-
-            context['std_imputation1'] = std_im_1
-            context['std_imputation2'] = std_im_2
+            context.update({'std_imputation1': std_im_1, 'std_imputation2': std_im_2})
             chart_imputation_1, chart_imputation_2 = create_chart(data_imputation, column_1, column_2)
             context['chart_imputation_1'] = chart_imputation_1
             context['chart_imputation_2'] = chart_imputation_2
+            quantiles_im_1, quantiles_im_2, third_qauntile_im_1, third_qauntile_im_2 = calculate_quantiles(data_imputation, column_1, column_2)
+            context.update({'first_quantile_im_1': quantiles_im_1, 'first_quantile_im_2': quantiles_im_2, 'third_quantiles_im_1': third_qauntile_im_1, 'third_quantiles_im_2':third_qauntile_im_2})
+            imputation_min_1, imputation_max_1, imputation_min_2, imputation_max_2 = calculate_min_max(data_imputation, column_1, column_2)
+            context.update({'imputation_min_1': imputation_min_1, 'imputation_max_1': imputation_max_1, 'imputation_min_2': imputation_min_2, 'imputation_max_2': imputation_max_2})
             chart, chart2 = create_chart(data, column_1, column_2)
             context['chart'] = chart
             context['chart2'] = chart2

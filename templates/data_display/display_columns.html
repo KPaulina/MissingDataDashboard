@@ -25,9 +25,6 @@
     <form action='.' method="POST">
         {% csrf_token %}
         {{ form.as_p }}
-{#        <input type='text' name='column1' placeholder="column1" />#}
-{#        <input type='text' name='column2' placeholder="column2" />#}
-{#        <input type="text" name="imputation" placeholder="imputation" />#}
         <select name="imputation" class="form-select" aria-label="Default select example">
             <option value="mean" class="dropdown-item">mean</option>
             <option value="median" class="dropdown-item">median</option>
@@ -52,6 +49,39 @@
             <td> Standard deviation after imputation: {{ std_imputation1 }} </td>
             <td> Standard deviation after imputation: {{ std_imputation2 }} </td>
         </tr>
+        <tr>
+            <td> 1st quantile before imputation {{ first_quantile_1 }} </td>
+            <td> 1st quantile before imputation {{ first_quantile_2 }} </td>
+        </tr>
+        <tr>
+            <td> 1st quantile after imputation {{ first_quantile_im_1 }} </td>
+            <td> 1st quantile after imputation {{ first_quantile_im_2 }} </td>
+        </tr>
+        <tr>
+            <td> 3rd quantile before imputation {{ third_quantiles_1 }} </td>
+            <td> 3rd quantile before imputation {{ third_quantiles_2 }} </td>
+        </tr>
+        <tr>
+            <td> 3rd quantile after imputation {{ third_quantiles_im_1 }} </td>
+            <td> 3rd quantile after imputation {{ third_quantiles_im_2 }} </td>
+        </tr>
+        <tr>
+            <td> Min before imputation {{ min_1 }} </td>
+            <td> Min before imputation {{ min_2 }} </td>
+        </tr>
+        <tr>
+            <td> Min after imputation {{ imputation_min_1 }} </td>
+            <td> Min after imputation {{ imputation_min_2 }} </td>
+        </tr>
+        <tr>
+            <td> Max before imputation {{ max_1 }} </td>
+            <td> Max before imputation {{ max_2 }} </td>
+        </tr>
+        <tr>
+            <td> Max after imputation {{ imputation_max_1 }} </td>
+            <td> Max after imputation {{ imputation_max_2 }} </td>
+        </tr>
+
     </table>
     </div>
     <br>
