@@ -40,50 +40,41 @@
     <h4>Data before and after imputation for strategy {{ impu_strategy }}</h4>
     <table>
         <tr>
-            <th> {{ column1 }}</th>
-            <th>{{ column2 }}</th>
+            <th>Before imputation {{ column1 }}</th>
+            <th>After imputation {{ column1 }}</th>
+            <th>Before imputation {{ column2 }}</th>
+            <th>After imputation {{ column2 }}</th>
         </tr>
         <tr>
-            <td> Standard deviation before imputation: {{ std1 }} </td>
-            <td> Standard deviation before imputation: {{ std2 }} </td>
+            <td> Standard deviation: {{ std1 }} </td>
+            <td> Standard deviation: {{ std_imputation1 }} </td>
+            <td> Standard deviation: {{ std2 }} </td>
+            <td> Standard deviation: {{ std_imputation2 }} </td>
         </tr>
         <tr>
-            <td> Standard deviation after imputation: {{ std_imputation1 }} </td>
-            <td> Standard deviation after imputation: {{ std_imputation2 }} </td>
+            <td> 1st quantile: {{ first_quantile_1 }} </td>
+            <td> 1st quantile: {{ first_quantile_im_1 }} </td>
+            <td> 1st quantile: {{ first_quantile_2 }} </td>
+            <td> 1st quantile: {{ first_quantile_im_2 }} </td>
         </tr>
         <tr>
-            <td> 1st quantile before imputation {{ first_quantile_1 }} </td>
-            <td> 1st quantile before imputation {{ first_quantile_2 }} </td>
+            <td> 3rd quantile: {{ third_quantiles_1 }} </td>
+            <td> 3rd quantile: {{ third_quantiles_im_1 }} </td>
+            <td> 3rd quantile: {{ third_quantiles_2 }} </td>
+            <td> 3rd quantile: {{ third_quantiles_im_2 }} </td>
         </tr>
         <tr>
-            <td> 1st quantile after imputation {{ first_quantile_im_1 }} </td>
-            <td> 1st quantile after imputation {{ first_quantile_im_2 }} </td>
+            <td> Min: {{ min_1 }} </td>
+            <td> Min: {{ imputation_min_1 }} </td>
+            <td> Min: {{ min_2 }} </td>
+            <td> Min: {{ imputation_min_2 }} </td>
         </tr>
         <tr>
-            <td> 3rd quantile before imputation {{ third_quantiles_1 }} </td>
-            <td> 3rd quantile before imputation {{ third_quantiles_2 }} </td>
+            <td> Max: {{ max_1 }} </td>
+            <td> Max: {{ imputation_max_1 }} </td>
+            <td> Max: {{ max_2 }} </td>
+            <td> Max: {{ imputation_max_2 }} </td>
         </tr>
-        <tr>
-            <td> 3rd quantile after imputation {{ third_quantiles_im_1 }} </td>
-            <td> 3rd quantile after imputation {{ third_quantiles_im_2 }} </td>
-        </tr>
-        <tr>
-            <td> Min before imputation {{ min_1 }} </td>
-            <td> Min before imputation {{ min_2 }} </td>
-        </tr>
-        <tr>
-            <td> Min after imputation {{ imputation_min_1 }} </td>
-            <td> Min after imputation {{ imputation_min_2 }} </td>
-        </tr>
-        <tr>
-            <td> Max before imputation {{ max_1 }} </td>
-            <td> Max before imputation {{ max_2 }} </td>
-        </tr>
-        <tr>
-            <td> Max after imputation {{ imputation_max_1 }} </td>
-            <td> Max after imputation {{ imputation_max_2 }} </td>
-        </tr>
-
     </table>
     </div>
     <br>

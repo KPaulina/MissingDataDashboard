@@ -23,7 +23,7 @@ DATA_DIR = os.path.join(BASE_DIR, 'data\\')
 # Create your views here.
 
 
-def calculate_std(data, column_1, column_2):
+def calculate_std(data: pd.DataFrame, column_1: str, column_2: str) -> tuple:
     '''
     Function that calculates standard deviation for chosen columns
     :param data:
@@ -36,11 +36,12 @@ def calculate_std(data, column_1, column_2):
     return std_1, std_2
 
 
-def calculate_quantiles(data: pd.DataFrame, column_1: str, column_2: str):
+def calculate_quantiles(data: pd.DataFrame, column_1: str, column_2: str) -> tuple:
     '''
     Function created to calculate quantiles in data before and after imputation.
     :param data:
-    :param data_imputation:
+    :param column_1:
+    :param column_2:
     :return:
     '''
     first_qauntile_1 = np.percentile(data[column_1], 25)
@@ -50,7 +51,7 @@ def calculate_quantiles(data: pd.DataFrame, column_1: str, column_2: str):
     return first_qauntile_1, first_qauntile_2, third_qauntile_1, third_qauntile_2
 
 
-def calculate_min_max(data, column_1, column_2):
+def calculate_min_max(data: pd.DataFrame, column_1: str, column_2: str) -> tuple:
     '''
     Function which calculates min and max for provided columns.
     :param data:
@@ -65,7 +66,7 @@ def calculate_min_max(data, column_1, column_2):
     return min_1, max_1, min_2, max_2
 
 
-def changing_to_npnan(data_imputation: pd.DataFrame, column: str):
+def changing_to_npnan(data_imputation: pd.DataFrame, column: str) -> pd.DataFrame:
     '''
     Function that takes care of changing missing value to np.nan
     :param data_imputation:
@@ -76,7 +77,7 @@ def changing_to_npnan(data_imputation: pd.DataFrame, column: str):
     return data_imputation[column]
 
 
-def imputation_strategy(imput_strategy, data, column_1, column_2):
+def imputation_strategy(imput_strategy: str, data: pd.DataFrame, column_1: str, column_2: str) -> pd.DataFrame:
     '''
     Function that takes care of impute strategy on data
     :param imput_strategy:
@@ -116,7 +117,7 @@ def data_from_csv(request):
     :param request:
     :return:
     '''
-    def create_chart(data, column_1, column_2):
+    def create_chart(data: pd.DataFrame, column_1: str, column_2: str) -> tuple:
         '''
         Function that creates charts for the data
         :param data:
