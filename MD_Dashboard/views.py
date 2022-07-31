@@ -23,7 +23,7 @@ DATA_DIR = os.path.join(BASE_DIR, 'data\\')
 # Create your views here.
 
 
-def calculate_std(data: pd.DataFrame, column_1: str, column_2: str) -> tuple:
+def calculate_std(data: pd.DataFrame, column_1: str, column_2: str) -> tuple[float, float]:
     '''
     Function that calculates standard deviation for chosen columns
     :param data:
@@ -36,7 +36,7 @@ def calculate_std(data: pd.DataFrame, column_1: str, column_2: str) -> tuple:
     return std_1, std_2
 
 
-def calculate_quantiles(data: pd.DataFrame, column_1: str, column_2: str) -> tuple:
+def calculate_quantiles(data: pd.DataFrame, column_1: str, column_2: str) -> tuple[float, float, float, float]:
     '''
     Function created to calculate quantiles in data before and after imputation.
     :param data:
@@ -51,7 +51,7 @@ def calculate_quantiles(data: pd.DataFrame, column_1: str, column_2: str) -> tup
     return first_qauntile_1, first_qauntile_2, third_qauntile_1, third_qauntile_2
 
 
-def calculate_min_max(data: pd.DataFrame, column_1: str, column_2: str) -> tuple:
+def calculate_min_max(data: pd.DataFrame, column_1: str, column_2: str) -> tuple[float, float, float, float]:
     '''
     Function which calculates min and max for provided columns.
     :param data:
