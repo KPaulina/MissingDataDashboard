@@ -31,5 +31,22 @@
 
 #choice {
     padding: 50px;
-    width: 900px;
+    width: 500px;
+}
+
+#chart_one_column {
+    width: 500px;
+    text-align: center;
+}
+
+
+#form_two_columns {
+    padding: 20px;
+    width: 400px;
+}
+
+
+#percent {
+    padding: 50px;
+    width: 600px;
 }

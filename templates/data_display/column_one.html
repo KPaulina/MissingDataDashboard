@@ -24,7 +24,7 @@
 
             <form action='one_column' method="POST">
                 {% csrf_token %}
-                {{ form_for_one_column.as_p }}
+                {{ form.as_p }}
                 <select name="imputation" class="form-select" aria-label="Default select example">
                     <option value="mean" class="dropdown-item">mean</option>
                     <option value="median" class="dropdown-item">median</option>
@@ -36,6 +36,29 @@
                 <button type="submit" class="btn btn-success">Submit</button>
             </form>
       </div>
+    </div>
+    <div id="chart_one_column">
+         {% if dashboard_created %}
+             {{ missing_data_chart|safe }}
+    </div>
+    <div id="chart_one_column">
+
+        <H4>Before imputation</H4>
+            {{ chart|safe }}
+
+            {{ chart_missno|safe }}
+    </div>
+    <div id="chart_one_column">
+        <h4>After imputation</h4>
+
+            {{ chart_after_imputation|safe }}
+
+        {% endif %}
+        {% if dashboard_not_created %}
+
+        {{ error }}
+
+        {% endif %}
     </div>
 </div>
 </html>

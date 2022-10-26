@@ -1,16 +1,13 @@
 import os.path
 import sklearn
 from .forms import MissingDataForm, OneColumnImputation
+from .imputation_strategies import imputation_strategy_for_one_column, imputation_strategy
+from .charts import create_charts_for_one_column, bar_chart_showing_number_of_missing_data
 import numpy as np
 import pandas as pd
 from django.shortcuts import render, redirect
 import plotly.graph_objects as go
 import plotly.express as px
-from sklearn.impute import SimpleImputer
-import sklearn.neighbors._base
-import sys
-sys.modules['sklearn.neighbors.base'] = sklearn.neighbors._base
-from missingpy import MissForest
 
 
 '''
@@ -18,6 +15,10 @@ path to were data is stored
 '''
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'data\\')
+'''
+Name of your dataset in csv, do not add .csv ending
+'''
+NAME = 'diabetes'
 # Create your views here.
 
 
@@ -75,38 +76,18 @@ def changing_to_npnan(data_imputation: pd.DataFrame, column: str) -> pd.DataFram
     return data_imputation[column]
 
 
-def imputation_strategy(imput_strategy: str, data: pd.DataFrame, column_1: str, column_2: str) -> pd.DataFrame:
+def calcualte_the_missing_percent_of_values(data: pd.DataFrame) -> list:
     '''
-    Function that takes care of impute strategy on data
-    :param imput_strategy:
+    Calculating how the precenteg of missing numbers
     :param data:
-    :param context:
-    :param column_1:
-    :param column_2:
-    :return: data_imputation, context
+    :return: tuple with the name of the column and the percentage of missing values
     '''
-    data_imputation = data.copy(deep=True)
-    data_imputation[column_1] = changing_to_npnan(data_imputation, column_1)
-    data_imputation[column_2] = changing_to_npnan(data_imputation, column_2)
-    if imput_strategy == 'MissForest':
-        imputer = MissForest()
-        miss_data = imputer.fit_transform(data_imputation)
-        miss_forest_data = pd.DataFrame(miss_data, columns=data.columns).round(1)
-        return miss_forest_data
-    elif imput_strategy == 'mean' or imput_strategy == 'median':
-        data_imputation = data_imputation[[column_1, column_2]]
-        col = data_imputation.columns
-        imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
-        data_imputation = pd.DataFrame(imputer.fit_transform(data_imputation))
-        data_imputation.columns = col
-        data_imputation.index = data.index
-        return data_imputation
-
-    mean_imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
-    data_imputation = pd.DataFrame(mean_imputer.fit_transform (data_imputation))
-    data_imputation.columns = data.columns
-    data_imputation.index = data.index
-    return data_imputation
+    percent_missing = data.isnull().sum() * 100 / len(data)
+    missing_value_df = pd.DataFrame({'column_name': data.columns, 'percent_missing': percent_missing})
+    missing_value_df.sort_values('percent_missing', inplace=True, ascending=False)
+    missing_value_df['missing percent name'] = list(zip(missing_value_df.column_name, missing_value_df.percent_missing))
+    #[+-]?([0-9]*[.])?[0-9]+ floating point number regex
+    return missing_value_df['missing percent name'].to_list()
 
 
 def the_number_of_columns_choice(request):
@@ -115,10 +96,11 @@ def the_number_of_columns_choice(request):
     :param request:
     :return: display the page or redirect to the chosen page
     '''
-    name = 'diabetes'
-    data = pd.read_csv(f'{DATA_DIR}{name}.csv', sep=',')
+    data = pd.read_csv(f'{DATA_DIR}{NAME}.csv', sep=',')
+    data.replace(0, np.nan, inplace=True)
     column_names = data.columns.values.tolist()
-    context = {'column_names': column_names}
+    percent_missing = calcualte_the_missing_percent_of_values(data)
+    context = {'column_names': column_names, 'percent_missing': percent_missing}
     choice = request.GET.get("choice")
     if choice == 'one':
         return redirect(one_column_view)
@@ -154,15 +136,13 @@ def data_from_csv(request):
         chart = box_plot_fig.to_html()
         chart2 = fig2.to_html()
         return chart, chart2
-    name = 'diabetes'
-    data = pd.read_csv(f'{DATA_DIR}{name}.csv', sep=',')
+    data = pd.read_csv(f'{DATA_DIR}{NAME}.csv', sep=',')
     column_names = data.columns.values.tolist()
     form = MissingDataForm()
     context = {'column_names': column_names, 'form': form}
     if request.method == "POST":
         form = MissingDataForm(request.POST)
         impu_strategy = request.POST.get('imputation')
-        print(impu_strategy)
         context.update({'impu_strategy': impu_strategy, 'text': 'Before imputation', 'dashboard_created': True,
                          'dashboard_not_created': False, 'error': 'This imputation strategy cannot be used here'})
         if form.is_valid():
@@ -179,7 +159,7 @@ def data_from_csv(request):
                              'third_quantiles_1': third_qauntile_1, 'third_quantiles_2': third_qauntile_2})
             min_1, max_1, min_2, max_2 = calculate_min_max (data, column_1, column_2)
             context.update ({'min_1': min_1, 'max_1': max_1, 'min_2': min_2, 'max_2': max_2})
-            data_imputation = imputation_strategy (impu_strategy, data, column_1, column_2)
+            data_imputation = imputation_strategy(impu_strategy, data, column_1, column_2)
             std_im_1, std_im_2 = calculate_std (data_imputation, column_1, column_2)
             context.update ({'std_imputation1': std_im_1, 'std_imputation2': std_im_2})
             chart_imputation_1, chart_imputation_2 = create_chart (data_imputation, column_1, column_2)
@@ -194,30 +174,49 @@ def data_from_csv(request):
                                                                                                         column_2)
             context.update ({'imputation_min_1': imputation_min_1, 'imputation_max_1': imputation_max_1,
                              'imputation_min_2': imputation_min_2, 'imputation_max_2': imputation_max_2})
-            chart, chart2 = create_chart (data, column_1, column_2)
+            chart, chart2 = create_chart(data, column_1, column_2)
             context['chart'] = chart
             context['chart2'] = chart2
 
     return render(request, 'data_display/two_columns.html', context)
 
 
+def how_many_missing_values(data: pd.DataFrame) -> pd.DataFrame:
+    df = pd.DataFrame({'number of nulls': data.isna().sum()})
+    df.reset_index(inplace=True)
+    df = df.rename(columns={'index': 'columns_names'})
+    return df
+
+
 def one_column_view(request):
-    name = 'diabetes'
-    data = pd.read_csv(f'{DATA_DIR}{name}.csv', sep=',')
+    '''
+    Function made to show charts when user wants imputation on only one column
+    :param request:
+    :return:
+    '''
+    data = pd.read_csv(f'{DATA_DIR}{NAME}.csv', sep=',')
     column_names = data.columns.values.tolist()
-    form_for_one_column = OneColumnImputation()
-    context = {'column_names': column_names, 'form_for_one_column': form_for_one_column}
-    if form_for_one_column == "POST":
+    form = OneColumnImputation()
+    context = {'column_names': column_names, 'form': form}
+    if request.method == "POST":
         '''
-        TO DO: imputation strategy, other stuff: 1st quantile, 3rd quantile, min, max, drawing charts
+        TO DO: imputation strategy, other stuff: 1st quantile, 3rd quantile, min, max
         '''
         form = OneColumnImputation(request.POST)
         impu_strategy = request.POST.get('imputation')
-        print(impu_strategy)
-        context.update({'one': True, 'choice_if_one_or_two_columns': True})
-        if form.is_valid ():
+        context.update({'impu_strategy': impu_strategy, 'one': True, 'choice_if_one_or_two_columns': True, 'dashboard_created': True, 'error': 'This imputation strategy cannot be used here'})
+        if form.is_valid():
             column = form.cleaned_data.get('column')
             context['column'] = column
-            std = data[column].std ()
-            context.update ({'std': std})
-    return render (request, 'data_display/column_one.html', context)
+            std = data[column].std()
+            data_imputed = imputation_strategy_for_one_column(impu_strategy, data, column)
+
+            chart = create_charts_for_one_column(data, column)
+            chart_after_imputation = create_charts_for_one_column(data_imputed, column)
+
+            missing_datanumbers = how_many_missing_values(data)
+            print(missing_datanumbers.info())
+            missing_data_chart = bar_chart_showing_number_of_missing_data(missing_datanumbers)
+            context.update({'std': std, 'chart': chart, 'chart_after_imputation': chart_after_imputation, 'missing_data_chart': missing_data_chart})
+    return render(request, 'data_display/column_one.html', context)
+

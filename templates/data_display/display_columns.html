@@ -19,6 +19,7 @@
     </ul>
     </div>
     <div id="choice">
+    <h6>Choose for how many columns you need to make imputation?</h6>
     <form method="get">
         <select name="choice" class="form-select" aria-label="Default select example">
                 <option disabled="True" selected>-------</option>
@@ -28,5 +29,12 @@
         <br>
         <button type="submit" class="btn btn-success">Submit</button>
     </form>
+    </div>
+    <div id='percent'>
+        <h6>The percentage of missing values in columns</h6>
+        {%  for percent in percent_missing %}
+            <li>{{ percent }}</li>
+        {% endfor %}
+    </div>
     </div>
 {% endblock %}
