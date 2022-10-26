@@ -18,86 +18,15 @@
         {% endfor %}
     </ul>
     </div>
-
-
-    <div id="form">
-    <a>Choose columns for creating charts and making imputations</a><br>
-    <form action='.' method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <select name="imputation" class="form-select" aria-label="Default select example">
-            <option value="mean" class="dropdown-item">mean</option>
-            <option value="median" class="dropdown-item">median</option>
-            <option value="most_frequent" class="dropdown-item">most frequent</option>
-            <option value="constant" class="dropdown-item">constant</option>
-            <option value="MissForest" class="dropdown-item">miss forest</option>
+    <div id="choice">
+    <form method="get">
+        <select name="choice" class="form-select" aria-label="Default select example">
+                <option disabled="True" selected>-------</option>
+                <option value="one" class="dropdown-item">One</option>
+                <option value="two" class="dropdown-item">Two</option>
         </select>
         <br>
         <button type="submit" class="btn btn-success">Submit</button>
     </form>
-    </div>
-    <div id="table">
-    <h4>Data before and after imputation for strategy {{ impu_strategy }}</h4>
-    <table>
-        <tr>
-            <th>Before imputation {{ column1 }}</th>
-            <th>After imputation {{ column1 }}</th>
-            <th>Before imputation {{ column2 }}</th>
-            <th>After imputation {{ column2 }}</th>
-        </tr>
-        <tr>
-            <td> Standard deviation: {{ std1 }} </td>
-            <td> Standard deviation: {{ std_imputation1 }} </td>
-            <td> Standard deviation: {{ std2 }} </td>
-            <td> Standard deviation: {{ std_imputation2 }} </td>
-        </tr>
-        <tr>
-            <td> 1st quantile: {{ first_quantile_1 }} </td>
-            <td> 1st quantile: {{ first_quantile_im_1 }} </td>
-            <td> 1st quantile: {{ first_quantile_2 }} </td>
-            <td> 1st quantile: {{ first_quantile_im_2 }} </td>
-        </tr>
-        <tr>
-            <td> 3rd quantile: {{ third_quantiles_1 }} </td>
-            <td> 3rd quantile: {{ third_quantiles_im_1 }} </td>
-            <td> 3rd quantile: {{ third_quantiles_2 }} </td>
-            <td> 3rd quantile: {{ third_quantiles_im_2 }} </td>
-        </tr>
-        <tr>
-            <td> Min: {{ min_1 }} </td>
-            <td> Min: {{ imputation_min_1 }} </td>
-            <td> Min: {{ min_2 }} </td>
-            <td> Min: {{ imputation_min_2 }} </td>
-        </tr>
-        <tr>
-            <td> Max: {{ max_1 }} </td>
-            <td> Max: {{ imputation_max_1 }} </td>
-            <td> Max: {{ max_2 }} </td>
-            <td> Max: {{ imputation_max_2 }} </td>
-        </tr>
-    </table>
-    </div>
-    <br>
-    <br>
-    <div id="chart">
-    <h4>{{ text }}</h4>
-    {% if dashboard_created %}
-        {{ chart2|safe }}
-
-        {{ chart|safe }}
-    </div>
-    <div id="chart">
-    <h4>After imputation</h4>
-    <br>
-        {{ chart_imputation_2|safe }}
-
-        {{ chart_imputation_1|safe }}
-
-    {% endif %}
-
-    {% if dashboard_not_created %}
-        {{ error }}
-    {% endif %}
-    </div>
     </div>
 {% endblock %}

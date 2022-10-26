@@ -1,0 +1,42 @@
+{%  extends "data_display/base.html" %}
+
+
+{% load static %}
+
+{% block title %}
+
+    See the columns in the dataframe
+{%  endblock %}
+
+{% block content %}
+<div id="container">
+    <div id="columns">
+    <h4>Columns in your dataframe</h4>
+    <ul>
+        {% for column in column_names %}
+            <li>{{ column }}</li>
+        {% endfor %}
+    </ul>
+    </div>
+    <div id="choice">
+      <div id="form_one_column">
+            <a>Choose one column for creating charts and making imputations</a><br>
+
+            <form action='one_column' method="POST">
+                {% csrf_token %}
+                {{ form_for_one_column.as_p }}
+                <select name="imputation" class="form-select" aria-label="Default select example">
+                    <option value="mean" class="dropdown-item">mean</option>
+                    <option value="median" class="dropdown-item">median</option>
+                    <option value="most_frequent" class="dropdown-item">most frequent</option>
+                    <option value="constant" class="dropdown-item">constant</option>
+                    <option value="MissForest" class="dropdown-item">miss forest</option>
+                </select>
+                <br>
+                <button type="submit" class="btn btn-success">Submit</button>
+            </form>
+      </div>
+    </div>
+</div>
+</html>
+{% endblock %}

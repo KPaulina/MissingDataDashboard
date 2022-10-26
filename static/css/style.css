@@ -4,13 +4,18 @@
 }
 
 #columns {
-    padding: 20px;
-    width: 300px;
+    padding: 50px;
+    width: 600px;
 }
 
 #form {
     padding: 20px;
-    width: 400px;
+    width: 500px;
+}
+
+#form_one_column {
+    padding: 30px;
+    width: 500px;
 }
 
 #table {
@@ -21,4 +26,10 @@
 #chart {
     width: 1200px;
     text-align: center;
+}
+
+
+#choice {
+    padding: 50px;
+    width: 900px;
 }

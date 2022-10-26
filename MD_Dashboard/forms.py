@@ -13,3 +13,17 @@ class MissingDataForm(forms.Form):
     def clean(self):
         cleaned_data = self.cleaned_data
         return cleaned_data
+
+
+class OneColumnImputation(forms.Form):
+    column = forms.CharField()
+
+    def clean_column(self):
+        cleaned_data = self.cleaned_data
+        column = cleaned_data.get('column')
+        return column
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        return cleaned_data
+

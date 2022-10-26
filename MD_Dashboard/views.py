@@ -1,11 +1,9 @@
 import os.path
-
 import sklearn
-
-from .forms import MissingDataForm
+from .forms import MissingDataForm, OneColumnImputation
 import numpy as np
 import pandas as pd
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import plotly.graph_objects as go
 import plotly.express as px
 from sklearn.impute import SimpleImputer
@@ -111,6 +109,24 @@ def imputation_strategy(imput_strategy: str, data: pd.DataFrame, column_1: str, 
     return data_imputation
 
 
+def the_number_of_columns_choice(request):
+    '''
+    Function created to give user a choice for how many columns imputations is to be done
+    :param request:
+    :return: display the page or redirect to the chosen page
+    '''
+    name = 'diabetes'
+    data = pd.read_csv(f'{DATA_DIR}{name}.csv', sep=',')
+    column_names = data.columns.values.tolist()
+    context = {'column_names': column_names}
+    choice = request.GET.get("choice")
+    if choice == 'one':
+        return redirect(one_column_view)
+    elif choice == 'two':
+        return redirect(data_from_csv)
+    return render(request, 'data_display/display_columns.html', context)
+
+
 def data_from_csv(request):
     '''
     Function that takes data from csv, displays columns and shows charts for this data before and after imputation
@@ -146,32 +162,62 @@ def data_from_csv(request):
     if request.method == "POST":
         form = MissingDataForm(request.POST)
         impu_strategy = request.POST.get('imputation')
-        context.update({'impu_strategy': impu_strategy, 'text': 'Before imputation', 'dashboard_created': True, 'dashboard_not_created': False, 'error': 'This imputation strategy cannot be used here'})
+        print(impu_strategy)
+        context.update({'impu_strategy': impu_strategy, 'text': 'Before imputation', 'dashboard_created': True,
+                         'dashboard_not_created': False, 'error': 'This imputation strategy cannot be used here'})
         if form.is_valid():
             column_1 = form.cleaned_data.get('column_1')
             column_2 = form.cleaned_data.get('column_2')
             context['column1'] = column_1
             context['column2'] = column_2
             # columns_object = MissingDataForm.objects.create(column_1=column_1, column_2=column_2)
-            std_1, std_2 = calculate_std(data, column_1, column_2)
-            context.update({'std1': std_1, 'std2': std_2})
-            quantiles_1, quantiles_2, third_qauntile_1, third_qauntile_2 = calculate_quantiles(data, column_1, column_2)
-            context.update({'first_quantile_1': quantiles_1, 'first_quantile_2': quantiles_2, 'third_quantiles_1': third_qauntile_1, 'third_quantiles_2': third_qauntile_2})
-            min_1, max_1, min_2, max_2 = calculate_min_max(data, column_1, column_2)
-            context.update({'min_1': min_1, 'max_1': max_1, 'min_2': min_2, 'max_2': max_2})
-            data_imputation = imputation_strategy(impu_strategy, data, column_1, column_2)
-            std_im_1, std_im_2 = calculate_std(data_imputation, column_1, column_2)
-            context.update({'std_imputation1': std_im_1, 'std_imputation2': std_im_2})
-            chart_imputation_1, chart_imputation_2 = create_chart(data_imputation, column_1, column_2)
+            std_1, std_2 = calculate_std (data, column_1, column_2)
+            context.update ({'std1': std_1, 'std2': std_2})
+            quantiles_1, quantiles_2, third_qauntile_1, third_qauntile_2 = calculate_quantiles (data, column_1,
+                                                                                                column_2)
+            context.update ({'first_quantile_1': quantiles_1, 'first_quantile_2': quantiles_2,
+                             'third_quantiles_1': third_qauntile_1, 'third_quantiles_2': third_qauntile_2})
+            min_1, max_1, min_2, max_2 = calculate_min_max (data, column_1, column_2)
+            context.update ({'min_1': min_1, 'max_1': max_1, 'min_2': min_2, 'max_2': max_2})
+            data_imputation = imputation_strategy (impu_strategy, data, column_1, column_2)
+            std_im_1, std_im_2 = calculate_std (data_imputation, column_1, column_2)
+            context.update ({'std_imputation1': std_im_1, 'std_imputation2': std_im_2})
+            chart_imputation_1, chart_imputation_2 = create_chart (data_imputation, column_1, column_2)
             context['chart_imputation_1'] = chart_imputation_1
             context['chart_imputation_2'] = chart_imputation_2
-            quantiles_im_1, quantiles_im_2, third_qauntile_im_1, third_qauntile_im_2 = calculate_quantiles(data_imputation, column_1, column_2)
-            context.update({'first_quantile_im_1': quantiles_im_1, 'first_quantile_im_2': quantiles_im_2, 'third_quantiles_im_1': third_qauntile_im_1, 'third_quantiles_im_2':third_qauntile_im_2})
-            imputation_min_1, imputation_max_1, imputation_min_2, imputation_max_2 = calculate_min_max(data_imputation, column_1, column_2)
-            context.update({'imputation_min_1': imputation_min_1, 'imputation_max_1': imputation_max_1, 'imputation_min_2': imputation_min_2, 'imputation_max_2': imputation_max_2})
-            chart, chart2 = create_chart(data, column_1, column_2)
+            quantiles_im_1, quantiles_im_2, third_qauntile_im_1, third_qauntile_im_2 = calculate_quantiles (
+                data_imputation, column_1, column_2)
+            context.update ({'first_quantile_im_1': quantiles_im_1, 'first_quantile_im_2': quantiles_im_2,
+                             'third_quantiles_im_1': third_qauntile_im_1, 'third_quantiles_im_2': third_qauntile_im_2})
+            imputation_min_1, imputation_max_1, imputation_min_2, imputation_max_2 = calculate_min_max (data_imputation,
+                                                                                                        column_1,
+                                                                                                        column_2)
+            context.update ({'imputation_min_1': imputation_min_1, 'imputation_max_1': imputation_max_1,
+                             'imputation_min_2': imputation_min_2, 'imputation_max_2': imputation_max_2})
+            chart, chart2 = create_chart (data, column_1, column_2)
             context['chart'] = chart
             context['chart2'] = chart2
-    return render(request, 'data_display/display_columns.html', context)
+
+    return render(request, 'data_display/two_columns.html', context)
 
 
+def one_column_view(request):
+    name = 'diabetes'
+    data = pd.read_csv(f'{DATA_DIR}{name}.csv', sep=',')
+    column_names = data.columns.values.tolist()
+    form_for_one_column = OneColumnImputation()
+    context = {'column_names': column_names, 'form_for_one_column': form_for_one_column}
+    if form_for_one_column == "POST":
+        '''
+        TO DO: imputation strategy, other stuff: 1st quantile, 3rd quantile, min, max, drawing charts
+        '''
+        form = OneColumnImputation(request.POST)
+        impu_strategy = request.POST.get('imputation')
+        print(impu_strategy)
+        context.update({'one': True, 'choice_if_one_or_two_columns': True})
+        if form.is_valid ():
+            column = form.cleaned_data.get('column')
+            context['column'] = column
+            std = data[column].std ()
+            context.update ({'std': std})
+    return render (request, 'data_display/column_one.html', context)
