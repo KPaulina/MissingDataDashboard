@@ -184,13 +184,6 @@ def data_from_csv(request):
     return render(request, 'data_display/two_columns.html', context)
 
 
-# def how_many_missing_values(data: pd.DataFrame) -> pd.DataFrame:
-#     df = pd.DataFrame({'number of nulls': data.isna().sum()})
-#     df.reset_index(inplace=True)
-#     df = df.rename(columns={'index': 'columns_names'})
-#     return df
-
-
 def one_column_view(request):
     '''
     Function made to show charts when user wants imputation on only one column
@@ -217,9 +210,6 @@ def one_column_view(request):
             chart = create_charts_for_one_column(data, column)
             chart_after_imputation = create_charts_for_one_column(data_imputed, column)
 
-            # missing_datanumbers = how_many_missing_values(data)
-            # print(missing_datanumbers.info())
-            # missing_data_chart = bar_chart_showing_number_of_missing_data(missing_datanumbers)
             context.update({'std': std, 'chart': chart, 'chart_after_imputation': chart_after_imputation})
     return render(request, 'data_display/column_one.html', context)
 
