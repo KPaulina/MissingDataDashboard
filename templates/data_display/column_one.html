@@ -31,6 +31,7 @@
                     <option value="most_frequent" class="dropdown-item">most frequent</option>
                     <option value="constant" class="dropdown-item">constant</option>
                     <option value="MissForest" class="dropdown-item">miss forest</option>
+                    <option value="knn" class="dropdown-item">knn</option>
                 </select>
                 <br>
                 <button type="submit" class="btn btn-success">Submit</button>
@@ -39,7 +40,6 @@
     </div>
     <div id="chart_one_column">
          {% if dashboard_created %}
-             {{ missing_data_chart|safe }}
     </div>
     <div id="chart_one_column">
 

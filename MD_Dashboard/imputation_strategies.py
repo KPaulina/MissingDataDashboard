@@ -5,6 +5,7 @@ import sklearn.neighbors._base
 import sys
 sys.modules['sklearn.neighbors.base'] = sklearn.neighbors._base
 from missingpy import MissForest
+from sklearn.impute import KNNImputer
 
 
 def imputation_strategy(imput_strategy: str, data: pd.DataFrame, column_1: str, column_2: str) -> pd.DataFrame:
@@ -21,24 +22,28 @@ def imputation_strategy(imput_strategy: str, data: pd.DataFrame, column_1: str, 
     data_imputation[column_1] = changing_to_npnan(data_imputation, column_1)
     data_imputation[column_2] = changing_to_npnan(data_imputation, column_2)
     if imput_strategy == 'MissForest':
-        imputer = MissForest()
-        miss_data = imputer.fit_transform(data_imputation)
+        impute = MissForest()
+        miss_data = impute.fit_transform(data_imputation)
         miss_forest_data = pd.DataFrame(miss_data, columns=data.columns).round(1)
         return miss_forest_data
     elif imput_strategy == 'mean' or imput_strategy == 'median':
         data_imputation = data_imputation[[column_1, column_2]]
         col = data_imputation.columns
-        imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
-        data_imputation = pd.DataFrame(imputer.fit_transform(data_imputation))
+        impute = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
+        data_imputation = pd.DataFrame(impute.fit_transform(data_imputation))
         data_imputation.columns = col
         data_imputation.index = data.index
         return data_imputation
-
-    mean_imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
-    data_imputation = pd.DataFrame(mean_imputer.fit_transform (data_imputation))
-    data_imputation.columns = data.columns
-    data_imputation.index = data.index
-    return data_imputation
+    elif imput_strategy == 'knn':
+        impute = KNNImputer(n_neighbors=5)
+        data_imputation = pd.DataFrame(impute.fit_transform(data_imputation), columns=data_imputation.columns)
+        return data_imputation
+    else:
+        mean_imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
+        data_imputation = pd.DataFrame(mean_imputer.fit_transform (data_imputation))
+        data_imputation.columns = data.columns
+        data_imputation.index = data.index
+        return data_imputation
 
 
 def imputation_strategy_for_one_column(imput_strategy: str, data: pd.DataFrame, column: str):
@@ -67,16 +72,20 @@ def imputation_strategy_for_one_column(imput_strategy: str, data: pd.DataFrame, 
         data_imputation.columns = col
         data_imputation.index = data.index
         return data_imputation
-
-    mean_imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
-    data_imputation = pd.DataFrame(mean_imputer.fit_transform(data_imputation))
-    print('Old df')
-    print(data.info())
-    print(f'New data imputed df')
-    print(data_imputation.info())
-    data_imputation.columns = data.columns
-    data_imputation.index = data.index
-    return data_imputation
+    elif imput_strategy == 'knn':
+        impute = KNNImputer(n_neighbors=5)
+        data_imputation = pd.DataFrame(impute.fit_transform(data_imputation), columns=data_imputation.columns)
+        return data_imputation
+    else:
+        mean_imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
+        data_imputation = pd.DataFrame(mean_imputer.fit_transform(data_imputation))
+        print('Old df')
+        print(data.info())
+        print(f'New data imputed df')
+        print(data_imputation.info())
+        data_imputation.columns = data.columns
+        data_imputation.index = data.index
+        return data_imputation
 
 
 def changing_to_npnan(data_imputation: pd.DataFrame, column: str) -> pd.DataFrame:

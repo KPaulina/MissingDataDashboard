@@ -8,7 +8,9 @@ import pandas as pd
 from django.shortcuts import render, redirect
 import plotly.graph_objects as go
 import plotly.express as px
-
+'''
+TO DO: choose columns that should have 0 replaced with np.nan
+'''
 
 '''
 path to were data is stored
@@ -96,6 +98,7 @@ def the_number_of_columns_choice(request):
     :param request:
     :return: display the page or redirect to the chosen page
     '''
+
     data = pd.read_csv(f'{DATA_DIR}{NAME}.csv', sep=',')
     data.replace(0, np.nan, inplace=True)
     column_names = data.columns.values.tolist()
@@ -181,11 +184,11 @@ def data_from_csv(request):
     return render(request, 'data_display/two_columns.html', context)
 
 
-def how_many_missing_values(data: pd.DataFrame) -> pd.DataFrame:
-    df = pd.DataFrame({'number of nulls': data.isna().sum()})
-    df.reset_index(inplace=True)
-    df = df.rename(columns={'index': 'columns_names'})
-    return df
+# def how_many_missing_values(data: pd.DataFrame) -> pd.DataFrame:
+#     df = pd.DataFrame({'number of nulls': data.isna().sum()})
+#     df.reset_index(inplace=True)
+#     df = df.rename(columns={'index': 'columns_names'})
+#     return df
 
 
 def one_column_view(request):
@@ -214,9 +217,9 @@ def one_column_view(request):
             chart = create_charts_for_one_column(data, column)
             chart_after_imputation = create_charts_for_one_column(data_imputed, column)
 
-            missing_datanumbers = how_many_missing_values(data)
-            print(missing_datanumbers.info())
-            missing_data_chart = bar_chart_showing_number_of_missing_data(missing_datanumbers)
-            context.update({'std': std, 'chart': chart, 'chart_after_imputation': chart_after_imputation, 'missing_data_chart': missing_data_chart})
+            # missing_datanumbers = how_many_missing_values(data)
+            # print(missing_datanumbers.info())
+            # missing_data_chart = bar_chart_showing_number_of_missing_data(missing_datanumbers)
+            context.update({'std': std, 'chart': chart, 'chart_after_imputation': chart_after_imputation})
     return render(request, 'data_display/column_one.html', context)
 

@@ -6,9 +6,6 @@ import missingno as msno
 
 
 def create_charts_for_one_column(data: pd.DataFrame, column: str):
-    chart_missno = msno.bar(data)
-    # print(chart)
-    # return chart
     df = data[column]
     fig = px.box(df, y=column)
     chart = fig.to_html()
