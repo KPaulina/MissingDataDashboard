@@ -1,0 +1,19 @@
+{%  extends "data_display/base.html" %}
+
+{% load static %}
+
+{% block title %}
+
+    See the columns in the dataframe
+{%  endblock %}
+
+{% block content %}
+    <h3>Choose file for which you want to make imputation</h3>
+    <h4 style="color: red">Nie wybrałeś pliku lub plik nie miał rozszerzenia csv.</h4>
+    <form method="POST" action="/" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="myFile">
+        <input type="submit" name="Submit">
+    </form>
+    <br>
+{% endblock %}

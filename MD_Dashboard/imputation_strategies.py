@@ -10,7 +10,7 @@ from sklearn.impute import KNNImputer
 
 def imputation_strategy(imput_strategy: str, data: pd.DataFrame, column_1: str, column_2: str) -> pd.DataFrame:
     '''
-    Function that takes care of impute strategy on data
+    Function that takes care of impute strategy on data (two columns)
     :param imput_strategy:
     :param data:
     :param context:
@@ -22,10 +22,12 @@ def imputation_strategy(imput_strategy: str, data: pd.DataFrame, column_1: str, 
     data_imputation[column_1] = changing_to_npnan(data_imputation, column_1)
     data_imputation[column_2] = changing_to_npnan(data_imputation, column_2)
     if imput_strategy == 'MissForest':
+        data_imputation = data_imputation[[column_1, column_2]]
         impute = MissForest()
         miss_data = impute.fit_transform(data_imputation)
-        return pd.DataFrame(miss_data, columns=data.columns).round(1)
+        return pd.DataFrame(miss_data, columns=data_imputation.columns).round(1)
     elif imput_strategy == 'knn':
+        data_imputation = data_imputation[[column_1, column_2]]
         impute = KNNImputer(n_neighbors=5)
         return pd.DataFrame(impute.fit_transform(data_imputation), columns=data_imputation.columns)
     data_imputation = data_imputation[[column_1, column_2]]
@@ -49,6 +51,8 @@ def imputation_strategy_for_one_column(imput_strategy: str, data: pd.DataFrame, 
     '''
     data['index1'] = data.index
     data_imputation = data.copy(deep=True)
+    data_imputation = data_imputation.replace(r'^\s*$', np.nan, regex=True)
+    data_imputation.to_excel('test.xlsx', index=False)
     data_imputation[column] = changing_to_npnan(data_imputation, column)
     if imput_strategy == 'MissForest':
         imputer = MissForest()

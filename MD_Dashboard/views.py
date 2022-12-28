@@ -1,15 +1,17 @@
 import os.path
-import sklearn
 from .forms import MissingDataForm, OneColumnImputation
 from .imputation_strategies import imputation_strategy_for_one_column, imputation_strategy
-from .charts import create_charts_for_one_column, bar_chart_showing_number_of_missing_data
+from .charts import create_charts_for_one_column
 import numpy as np
 import pandas as pd
 from django.shortcuts import render, redirect
 import plotly.graph_objects as go
 import plotly.express as px
+from .utilities import calculate_std, calculate_quantiles, calculate_min_max, calcualte_the_missing_percent_of_values, changing_to_npnan
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 '''
-TO DO: choose columns that should have 0 replaced with np.nan
+TO DO: check if there is a better method to read data from media directory
 '''
 
 '''
@@ -21,75 +23,8 @@ DATA_DIR = os.path.join(BASE_DIR, 'data\\')
 Name of your dataset in csv, do not add .csv ending
 '''
 NAME = 'diabetes'
+DATA = pd.DataFrame({'A': []})
 # Create your views here.
-
-
-def calculate_std(data: pd.DataFrame, column_1: str, column_2: str) -> tuple[float, float]:
-    '''
-    Function that calculates standard deviation for chosen columns
-    :param data:
-    :param column_1:
-    :param column_2:
-    :return:
-    '''
-    std_1 = data[column_1].std()
-    std_2 = data[column_2].std()
-    return std_1, std_2
-
-
-def calculate_quantiles(data: pd.DataFrame, column_1: str, column_2: str) -> tuple[float, float, float, float]:
-    '''
-    Function created to calculate quantiles in data before and after imputation.
-    :param data:
-    :param column_1:
-    :param column_2:
-    :return:
-    '''
-    first_qauntile_1 = np.percentile(data[column_1], 25)
-    first_qauntile_2 = np.percentile(data[column_2], 25)
-    third_qauntile_1 = np.percentile(data[column_1], 75)
-    third_qauntile_2 = np.percentile(data[column_2], 75)
-    return first_qauntile_1, first_qauntile_2, third_qauntile_1, third_qauntile_2
-
-
-def calculate_min_max(data: pd.DataFrame, column_1: str, column_2: str) -> tuple[float, float, float, float]:
-    '''
-    Function which calculates min and max for provided columns.
-    :param data:
-    :param column_1:
-    :param column_2:
-    :return:
-    '''
-    min_1 = data[column_1].min()
-    max_1 = data[column_1].max()
-    min_2 = data[column_2].min()
-    max_2 = data[column_2].max()
-    return min_1, max_1, min_2, max_2
-
-
-def changing_to_npnan(data_imputation: pd.DataFrame, column: str) -> pd.DataFrame:
-    '''
-    Function that takes care of changing missing value to np.nan
-    :param data_imputation:
-    :param column:
-    :return: data_imputation[column]
-    '''
-    data_imputation[column] = np.where((data_imputation[column] == 0) | (data_imputation[column] is None), np.nan, data_imputation[column])
-    return data_imputation[column]
-
-
-def calcualte_the_missing_percent_of_values(data: pd.DataFrame) -> list:
-    '''
-    Calculating how the precenteg of missing numbers
-    :param data:
-    :return: tuple with the name of the column and the percentage of missing values
-    '''
-    percent_missing = data.isnull().sum() * 100 / len(data)
-    missing_value_df = pd.DataFrame({'column_name': data.columns, 'percent_missing': percent_missing})
-    missing_value_df.sort_values('percent_missing', inplace=True, ascending=False)
-    missing_value_df['missing percent name'] = list(zip(missing_value_df.column_name, missing_value_df.percent_missing))
-    #[+-]?([0-9]*[.])?[0-9]+ floating point number regex
-    return missing_value_df['missing percent name'].to_list()
 
 
 def the_number_of_columns_choice(request):
@@ -98,8 +33,9 @@ def the_number_of_columns_choice(request):
     :param request:
     :return: display the page or redirect to the chosen page
     '''
-
-    data = pd.read_csv(f'{DATA_DIR}{NAME}.csv', sep=',')
+    fss = FileSystemStorage()
+    data = fss.open('data', mode='rb')
+    data = pd.read_csv(data, sep=',')
     data.replace(0, np.nan, inplace=True)
     column_names = data.columns.values.tolist()
     percent_missing = calcualte_the_missing_percent_of_values(data)
@@ -139,7 +75,9 @@ def data_from_csv(request):
         chart = box_plot_fig.to_html()
         chart2 = fig2.to_html()
         return chart, chart2
-    data = pd.read_csv(f'{DATA_DIR}{NAME}.csv', sep=',')
+    fss = FileSystemStorage()
+    data = fss.open('data', mode='rb')
+    data = pd.read_csv(data, sep=',')
     column_names = data.columns.values.tolist()
     form = MissingDataForm()
     context = {'column_names': column_names, 'form': form}
@@ -154,14 +92,14 @@ def data_from_csv(request):
             context['column1'] = column_1
             context['column2'] = column_2
             # columns_object = MissingDataForm.objects.create(column_1=column_1, column_2=column_2)
-            std_1, std_2 = calculate_std (data, column_1, column_2)
-            context.update ({'std1': std_1, 'std2': std_2})
+            std_1, std_2 = calculate_std(data, column_1, column_2)
+            context.update({'std1': std_1, 'std2': std_2})
             quantiles_1, quantiles_2, third_qauntile_1, third_qauntile_2 = calculate_quantiles (data, column_1,
                                                                                                 column_2)
-            context.update ({'first_quantile_1': quantiles_1, 'first_quantile_2': quantiles_2,
+            context.update({'first_quantile_1': quantiles_1, 'first_quantile_2': quantiles_2,
                              'third_quantiles_1': third_qauntile_1, 'third_quantiles_2': third_qauntile_2})
             min_1, max_1, min_2, max_2 = calculate_min_max (data, column_1, column_2)
-            context.update ({'min_1': min_1, 'max_1': max_1, 'min_2': min_2, 'max_2': max_2})
+            context.update({'min_1': min_1, 'max_1': max_1, 'min_2': min_2, 'max_2': max_2})
             data_imputation = imputation_strategy(impu_strategy, data, column_1, column_2)
             std_im_1, std_im_2 = calculate_std (data_imputation, column_1, column_2)
             context.update ({'std_imputation1': std_im_1, 'std_imputation2': std_im_2})
@@ -190,13 +128,16 @@ def one_column_view(request):
     :param request:
     :return:
     '''
-    data = pd.read_csv(f'{DATA_DIR}{NAME}.csv', sep=',')
+    # data = pd.read_csv(f'{DATA_DIR}{NAME}.csv', sep=',')
+    fss = FileSystemStorage()
+    data = fss.open('data', mode='rb')
+    data = pd.read_csv(data, sep=',')
     column_names = data.columns.values.tolist()
     form = OneColumnImputation()
     context = {'column_names': column_names, 'form': form}
     if request.method == "POST":
         '''
-        TO DO: imputation strategy, other stuff: 1st quantile, 3rd quantile, min, max
+        TO DO: table: 1st quantile, 3rd quantile, min, max
         '''
         form = OneColumnImputation(request.POST)
         impu_strategy = request.POST.get('imputation')
@@ -209,7 +150,23 @@ def one_column_view(request):
 
             chart = create_charts_for_one_column(data, column)
             chart_after_imputation = create_charts_for_one_column(data_imputed, column)
-
-            context.update({'std': std, 'chart': chart, 'chart_after_imputation': chart_after_imputation})
+            json = data_imputed.to_json(orient='records')
+            columns = data_imputed.columns
+            context.update({'std': std, 'chart': chart, 'chart_after_imputation': chart_after_imputation, 'imputed_data': data_imputed, 'data': json, 'columns': columns})
     return render(request, 'data_display/column_one.html', context)
 
+
+def upload_csv_view(request):
+    fss = FileSystemStorage()
+    if request.method == 'POST':
+        if len(request.FILES) == 0:
+            return render(request, 'data_display/error.html')
+        file = request.FILES['myFile']
+        if not file.name.endswith('.csv'):
+            return render(request, 'data_display/error.html')
+        file.name = 'data'
+        if fss.exists(file.name):
+            os.remove(os.path.join(settings.MEDIA_ROOT, file.name))
+        file = fss.save(file.name, file)
+        return redirect(the_number_of_columns_choice)
+    return render(request, 'data_display/upload.html')

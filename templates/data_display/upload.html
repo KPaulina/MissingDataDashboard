@@ -1,0 +1,16 @@
+{%  extends "data_display/base.html" %}
+
+{% block title %}
+Main page
+{% endblock title %}
+
+{% block content %}
+    <h3>Choose file for which you want to make imputation</h3>
+
+    <form method="POST" action="/" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="myFile">
+        <input type="submit" name="Submit">
+    </form>
+    <br>
+{%  endblock content %}
