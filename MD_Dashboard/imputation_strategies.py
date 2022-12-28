@@ -49,7 +49,7 @@ def imputation_strategy_for_one_column(imput_strategy: str, data: pd.DataFrame, 
     :param column_2:
     :return: data_imputation, context
     '''
-    data['index1'] = data.index
+    data['index'] = data.index
     data_imputation = data.copy(deep=True)
     data_imputation = data_imputation.replace(r'^\s*$', np.nan, regex=True)
     data_imputation.to_excel('test.xlsx', index=False)
@@ -61,7 +61,7 @@ def imputation_strategy_for_one_column(imput_strategy: str, data: pd.DataFrame, 
     elif imput_strategy == 'knn':
         impute = KNNImputer(n_neighbors=5)
         return pd.DataFrame(impute.fit_transform(data_imputation), columns=data_imputation.columns)
-    data_imputation = data_imputation[[column, 'index1']]
+    data_imputation = data_imputation[[column, 'index']]
     col = data_imputation.columns
     imputer = SimpleImputer(missing_values=np.nan, strategy=imput_strategy)
     data_imputation = pd.DataFrame(imputer.fit_transform(data_imputation))

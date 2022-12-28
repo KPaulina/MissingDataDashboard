@@ -10,21 +10,10 @@ import plotly.express as px
 from .utilities import calculate_std, calculate_quantiles, calculate_min_max, calcualte_the_missing_percent_of_values, changing_to_npnan
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.core.paginator import Paginator
 '''
-TO DO: check if there is a better method to read data from media directory
+TO DO: check if there is a better method to read data from media directory, pagination of the table
 '''
-
-'''
-path to were data is stored
-'''
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, 'data\\')
-'''
-Name of your dataset in csv, do not add .csv ending
-'''
-NAME = 'diabetes'
-DATA = pd.DataFrame({'A': []})
-# Create your views here.
 
 
 def the_number_of_columns_choice(request):
@@ -39,7 +28,10 @@ def the_number_of_columns_choice(request):
     data.replace(0, np.nan, inplace=True)
     column_names = data.columns.values.tolist()
     percent_missing = calcualte_the_missing_percent_of_values(data)
-    context = {'column_names': column_names, 'percent_missing': percent_missing}
+    table = data.style.set_table_attributes('class="pure-table"')
+    table = table.highlight_null('yellow')
+    table = table.to_html(index=False)
+    context = {'column_names': column_names, 'percent_missing': percent_missing, 'table': table}
     choice = request.GET.get("choice")
     if choice == 'one':
         return redirect(one_column_view)
@@ -150,9 +142,8 @@ def one_column_view(request):
 
             chart = create_charts_for_one_column(data, column)
             chart_after_imputation = create_charts_for_one_column(data_imputed, column)
-            json = data_imputed.to_json(orient='records')
-            columns = data_imputed.columns
-            context.update({'std': std, 'chart': chart, 'chart_after_imputation': chart_after_imputation, 'imputed_data': data_imputed, 'data': json, 'columns': columns})
+
+            context.update({'std': std, 'chart': chart, 'chart_after_imputation': chart_after_imputation, 'imputed_data': data_imputed})
     return render(request, 'data_display/column_one.html', context)
 
 
