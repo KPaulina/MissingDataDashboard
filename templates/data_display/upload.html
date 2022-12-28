@@ -5,12 +5,19 @@ Main page
 {% endblock title %}
 
 {% block content %}
-    <h3>Choose file for which you want to make imputation</h3>
+    <div id="container">
+    <div id="columns">
+        <h4>Here you can upload csv file for which missing data is to be imputed</h4>
+    </div>
 
-    <form method="POST" action="/" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="myFile">
-        <input type="submit" name="Submit">
-    </form>
+
+    <div id="form">
+        <form method="POST" action="/" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="myFile">
+            <input type="submit" name="Submit">
+        </form>
     <br>
+    </div>
+    </div>
 {%  endblock content %}
