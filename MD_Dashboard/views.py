@@ -1,16 +1,14 @@
 import os.path
 from .forms import MissingDataForm, OneColumnImputation
 from .imputation_strategies import imputation_strategy_for_one_column, imputation_strategy
-from .charts import create_charts_for_one_column
+from .charts import create_charts_for_one_column, create_chart
 import numpy as np
 import pandas as pd
 from django.shortcuts import render, redirect
-import plotly.graph_objects as go
-import plotly.express as px
 from .utilities import calculate_std, calculate_quantiles, calculate_min_max, calcualte_the_missing_percent_of_values, changing_to_npnan
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.core.paginator import Paginator
+
 '''
 TO DO: check if there is a better method to read data from media directory, pagination of the table
 '''
@@ -46,27 +44,7 @@ def data_from_csv(request):
     :param request:
     :return:
     '''
-    def create_chart(data: pd.DataFrame, column_1: str, column_2: str) -> tuple:
-        '''
-        Function that creates charts for the data
-        :param data:
-        :param column_1:
-        :param column_2:
-        :return:
-        '''
-        column_in_the_graph_1 = data[column_1]
-        column_in_the_graph_2 = data[column_2]
-        fig2 = px.scatter(data,
-                           x=column_in_the_graph_1,
-                           y=column_in_the_graph_2,
-                           )
-        box_plot_fig = go.Figure()
-        box_plot_fig.add_trace(go.Box(y=column_in_the_graph_1, name=column_1))
-        box_plot_fig.add_trace(go.Box(y=column_in_the_graph_2, name=column_2))
 
-        chart = box_plot_fig.to_html()
-        chart2 = fig2.to_html()
-        return chart, chart2
     fss = FileSystemStorage()
     data = fss.open('data', mode='rb')
     data = pd.read_csv(data, sep=',')
@@ -86,7 +64,7 @@ def data_from_csv(request):
             # columns_object = MissingDataForm.objects.create(column_1=column_1, column_2=column_2)
             std_1, std_2 = calculate_std(data, column_1, column_2)
             context.update({'std1': std_1, 'std2': std_2})
-            quantiles_1, quantiles_2, third_qauntile_1, third_qauntile_2 = calculate_quantiles (data, column_1,
+            quantiles_1, quantiles_2, third_qauntile_1, third_qauntile_2 = calculate_quantiles(data, column_1,
                                                                                                 column_2)
             context.update({'first_quantile_1': quantiles_1, 'first_quantile_2': quantiles_2,
                              'third_quantiles_1': third_qauntile_1, 'third_quantiles_2': third_qauntile_2})
