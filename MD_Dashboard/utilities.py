@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import re
 
 def calculate_std(data: pd.DataFrame, column_1: str, column_2: str) -> tuple[float, float]:
     '''
@@ -62,8 +62,19 @@ def calcualte_the_missing_percent_of_values(data: pd.DataFrame) -> list:
     :param data:
     :return: tuple with the name of the column and the percentage of missing values
     '''
-    percent_missing = data.isnull().sum() * 100 / len(data)
+    percent_missing = round(data.isnull().sum() * 100 / len(data), 2)
     missing_value_df = pd.DataFrame({'column_name': data.columns, 'percent_missing': percent_missing})
     missing_value_df.sort_values('percent_missing', inplace=True, ascending=False)
     missing_value_df['missing percent name'] = list(zip(missing_value_df.column_name, missing_value_df.percent_missing))
+    missing_value_df['missing percent name'] = missing_value_df['missing percent name'].astype(str)
     return missing_value_df['missing percent name'].to_list()
+
+
+def remove_unneeded_characters(percent_missing: list):
+    new_percent_missing = []
+    for element in percent_missing:
+        element = re.sub('[^a-zA-Z0-9 \n\.]', '', element)
+        new_percent_missing.append(element + '%')
+    return new_percent_missing
+
+

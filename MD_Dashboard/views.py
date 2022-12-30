@@ -5,7 +5,7 @@ from .charts import create_charts_for_one_column, create_chart
 import numpy as np
 import pandas as pd
 from django.shortcuts import render, redirect
-from .utilities import calculate_std, calculate_quantiles, calculate_min_max, calcualte_the_missing_percent_of_values, changing_to_npnan
+from .utilities import calculate_std, calculate_quantiles, calculate_min_max, calcualte_the_missing_percent_of_values, remove_unneeded_characters
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
@@ -26,6 +26,7 @@ def the_number_of_columns_choice(request):
     data.replace(0, np.nan, inplace=True)
     column_names = data.columns.values.tolist()
     percent_missing = calcualte_the_missing_percent_of_values(data)
+    percent_missing = remove_unneeded_characters(percent_missing)
     table = data.style.set_table_attributes('class="pure-table"')
     table = table.highlight_null('yellow')
     table = table.to_html(index=False)
