@@ -84,11 +84,11 @@ def data_from_csv(request):
             imputation_min_1, imputation_max_1, imputation_min_2, imputation_max_2 = calculate_min_max (data_imputation,
                                                                                                         column_1,
                                                                                                         column_2)
-            context.update ({'imputation_min_1': imputation_min_1, 'imputation_max_1': imputation_max_1,
-                             'imputation_min_2': imputation_min_2, 'imputation_max_2': imputation_max_2})
-            chart, chart2 = create_chart(data, column_1, column_2)
-            context['chart'] = chart
-            context['chart2'] = chart2
+            context.update({'imputation_min_1': imputation_min_1, 'imputation_max_1': imputation_max_1,
+                            'imputation_min_2': imputation_min_2, 'imputation_max_2': imputation_max_2})
+            chart_scatter, chart_box_plot = create_chart(data, column_1, column_2)
+            context['chart'] = chart_scatter
+            context['chart2'] = chart_box_plot
 
     return render(request, 'data_display/two_columns.html', context)
 

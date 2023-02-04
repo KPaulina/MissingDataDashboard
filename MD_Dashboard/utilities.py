@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import re
 
+
 def calculate_std(data: pd.DataFrame, column_1: str, column_2: str) -> tuple[float, float]:
     '''
     Function that calculates standard deviation for chosen columns

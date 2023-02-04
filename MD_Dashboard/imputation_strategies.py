@@ -28,7 +28,7 @@ def imputation_strategy(imput_strategy: str, data: pd.DataFrame, column_1: str, 
         return pd.DataFrame(miss_data, columns=data_imputation.columns).round(1)
     elif imput_strategy == 'knn':
         data_imputation = data_imputation[[column_1, column_2]]
-        impute = KNNImputer(n_neighbors=5)
+        impute = KNNImputer(n_neighbors=5, weights='uniform')
         return pd.DataFrame(impute.fit_transform(data_imputation), columns=data_imputation.columns)
     data_imputation = data_imputation[[column_1, column_2]]
     col = data_imputation.columns
