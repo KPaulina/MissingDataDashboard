@@ -138,5 +138,7 @@ def upload_csv_view(request):
         if fss.exists(file.name):
             os.remove(os.path.join(settings.MEDIA_ROOT, file.name))
         file = fss.save(file.name, file)
-        return redirect(the_number_of_columns_choice)
+        return redirect('/choose')
     return render(request, 'data_display/upload.html')
+
+
