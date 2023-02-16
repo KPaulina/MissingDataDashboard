@@ -33,9 +33,9 @@ def the_number_of_columns_choice(request):
     context = {'column_names': column_names, 'percent_missing': percent_missing, 'table': table}
     choice = request.GET.get("choice")
     if choice == 'one':
-        return redirect(one_column_view)
+        return redirect('/one_column')
     elif choice == 'two':
-        return redirect(data_from_csv)
+        return redirect('/two_columns')
     return render(request, 'data_display/display_columns.html', context)
 
 
