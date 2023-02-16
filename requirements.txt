@@ -1,5 +1,9 @@
+Django==3.2.5
+django-environ==0.9.0
 django-plotly-dash==2.0.0
 pandas==1.4.2
 python-dotenv==0.21.0
 scikit-learn==1.1.1
 missingpy==0.2.0
+gunicorn==20.1.0
+

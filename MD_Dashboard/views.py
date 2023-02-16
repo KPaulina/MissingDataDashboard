@@ -64,28 +64,27 @@ def data_from_csv(request):
             context['column2'] = column_2
             # columns_object = MissingDataForm.objects.create(column_1=column_1, column_2=column_2)
             std_1, std_2 = calculate_std(data, column_1, column_2)
-            context.update({'std1': std_1, 'std2': std_2})
             quantiles_1, quantiles_2, third_qauntile_1, third_qauntile_2 = calculate_quantiles(data, column_1,
                                                                                                 column_2)
-            context.update({'first_quantile_1': quantiles_1, 'first_quantile_2': quantiles_2,
-                             'third_quantiles_1': third_qauntile_1, 'third_quantiles_2': third_qauntile_2})
             min_1, max_1, min_2, max_2 = calculate_min_max (data, column_1, column_2)
-            context.update({'min_1': min_1, 'max_1': max_1, 'min_2': min_2, 'max_2': max_2})
             data_imputation = imputation_strategy(impu_strategy, data, column_1, column_2)
             std_im_1, std_im_2 = calculate_std (data_imputation, column_1, column_2)
-            context.update ({'std_imputation1': std_im_1, 'std_imputation2': std_im_2})
+            context.update()
             chart_imputation_1, chart_imputation_2 = create_chart (data_imputation, column_1, column_2)
             context['chart_imputation_1'] = chart_imputation_1
             context['chart_imputation_2'] = chart_imputation_2
             quantiles_im_1, quantiles_im_2, third_qauntile_im_1, third_qauntile_im_2 = calculate_quantiles (
                 data_imputation, column_1, column_2)
-            context.update ({'first_quantile_im_1': quantiles_im_1, 'first_quantile_im_2': quantiles_im_2,
-                             'third_quantiles_im_1': third_qauntile_im_1, 'third_quantiles_im_2': third_qauntile_im_2})
+            context.update({})
             imputation_min_1, imputation_max_1, imputation_min_2, imputation_max_2 = calculate_min_max (data_imputation,
                                                                                                         column_1,
                                                                                                         column_2)
-            context.update({'imputation_min_1': imputation_min_1, 'imputation_max_1': imputation_max_1,
-                            'imputation_min_2': imputation_min_2, 'imputation_max_2': imputation_max_2})
+            context.update({'imputation_min_1': imputation_min_1, 'imputation_max_1': imputation_max_1, 'std1': std_1, 'std2': std_2,
+                            'imputation_min_2': imputation_min_2, 'imputation_max_2': imputation_max_2, 'std_imputation1': std_im_1, 'std_imputation2': std_im_2,
+                            'first_quantile_im_1': quantiles_im_1, 'first_quantile_im_2': quantiles_im_2, 'third_quantiles_im_1': third_qauntile_im_1,
+                            'third_quantiles_im_2': third_qauntile_im_2, 'min_1': min_1, 'max_1': max_1, 'min_2': min_2, 'max_2': max_2,
+                            'first_quantile_1': quantiles_1, 'first_quantile_2': quantiles_2, 'third_quantiles_1': third_qauntile_1,
+                            'third_quantiles_2': third_qauntile_2})
             chart_scatter, chart_box_plot = create_chart(data, column_1, column_2)
             context['chart'] = chart_scatter
             context['chart2'] = chart_box_plot
@@ -112,7 +111,8 @@ def one_column_view(request):
         '''
         form = OneColumnImputation(request.POST)
         impu_strategy = request.POST.get('imputation')
-        context.update({'impu_strategy': impu_strategy, 'one': True, 'choice_if_one_or_two_columns': True, 'dashboard_created': True, 'error': 'This imputation strategy cannot be used here'})
+        context.update({'impu_strategy': impu_strategy, 'one': True, 'choice_if_one_or_two_columns': True, 'dashboard_created': True,
+                        'error': 'This imputation strategy cannot be used here'})
         if form.is_valid():
             column = form.cleaned_data.get('column')
             context['column'] = column

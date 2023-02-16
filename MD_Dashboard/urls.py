@@ -1,8 +1,6 @@
 from django.urls import path, include
 from . import views
-'''
-TO DO: function for one column view
-'''
+
 
 urlpatterns = [
     path("choose", views.the_number_of_columns_choice, name="index"),
