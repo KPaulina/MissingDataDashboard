@@ -139,7 +139,7 @@ def upload_csv_view(request):
         if fss.exists(file.name):
             os.remove(os.path.join(settings.MEDIA_ROOT, file.name))
         file = fss.save(file.name, file)
-        return redirect('index')
+        return redirect('two-columns')
     return render(request, 'data_display/upload.html')
 
 
