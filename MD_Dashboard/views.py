@@ -33,9 +33,9 @@ def the_number_of_columns_choice(request):
     context = {'column_names': column_names, 'percent_missing': percent_missing, 'table': table}
     choice = request.GET.get("choice")
     if choice == 'one':
-        return redirect('/one_column')
+        return redirect('one-column')
     elif choice == 'two':
-        return redirect('/two_columns')
+        return redirect('two-columns')
     return render(request, 'data_display/display_columns.html', context)
 
 
@@ -126,6 +126,7 @@ def one_column_view(request):
     return render(request, 'data_display/column_one.html', context)
 
 
+
 def upload_csv_view(request):
     fss = FileSystemStorage()
     if request.method == 'POST':
@@ -138,7 +139,7 @@ def upload_csv_view(request):
         if fss.exists(file.name):
             os.remove(os.path.join(settings.MEDIA_ROOT, file.name))
         file = fss.save(file.name, file)
-        return redirect('/choose')
+        return redirect('index')
     return render(request, 'data_display/upload.html')
 
 
