@@ -27,10 +27,10 @@ def the_number_of_columns_choice(request):
     column_names = data.columns.values.tolist()
     percent_missing = calcualte_the_missing_percent_of_values(data)
     percent_missing = remove_unneeded_characters(percent_missing)
-    table = data.style.set_table_attributes('class="pure-table"')
-    table = table.highlight_null('yellow')
-    table = table.to_html(index=False)
-    context = {'column_names': column_names, 'percent_missing': percent_missing, 'table': table}
+#     table = data.style.set_table_attributes('class="pure-table"')
+#     table = table.highlight_null('yellow')
+#     table = table.to_html(index=False)
+    context = {'column_names': column_names, 'percent_missing': percent_missing}
     choice = request.GET.get("choice")
     if choice == 'one':
         return redirect('one-column')
@@ -139,7 +139,7 @@ def upload_csv_view(request):
         if fss.exists(file.name):
             os.remove(os.path.join(settings.MEDIA_ROOT, file.name))
         file = fss.save(file.name, file)
-        return redirect('two-columns')
+        return redirect('index')
     return render(request, 'data_display/upload.html')
 
 
