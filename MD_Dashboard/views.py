@@ -111,8 +111,7 @@ def one_column_view(request):
         '''
         form = OneColumnImputation(request.POST)
         impu_strategy = request.POST.get('imputation')
-        context.update({'impu_strategy': impu_strategy, 'one': True, 'choice_if_one_or_two_columns': True, 'dashboard_created': True,
-                        'error': 'This imputation strategy cannot be used here'})
+        context.update({'impu_strategy': impu_strategy, 'one': True, 'choice_if_one_or_two_columns': True, 'dashboard_created': True, 'error': 'This imputation strategy cannot be used here'})
         if form.is_valid():
             column = form.cleaned_data.get('column')
             context['column'] = column
@@ -123,8 +122,8 @@ def one_column_view(request):
             chart_after_imputation = create_charts_for_one_column(data_imputed, column)
 
             context.update({'std': std, 'chart': chart, 'chart_after_imputation': chart_after_imputation, 'imputed_data': data_imputed})
+            return render(request, 'data_display/column_one.html', context)
     return render(request, 'data_display/column_one.html', context)
-
 
 
 def upload_csv_view(request):
